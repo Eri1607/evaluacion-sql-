@@ -257,9 +257,11 @@ END;
 
 -- 2. Validar que los clientes proporcionen información de contacto válida
 ALTER TABLE cliente
-ADD CONSTRAINT chk_email_format CHECK (email LIKE '%_@__%.__%');
+ADD CONSTRAINT chk_email_format CHECK (email LIKE '%@%._%');
+ADD CONSTRAINT chk_cel_cliente CHECK (celCliente REGEXP '^[0-9]{10}$');
 
 -- 3. La tarifa de alquiler depende del tipo de vehículo y debe calcularse en función del número de días de alquiler.
+--Relacionar la tabla tipo con la tabla vehiculo para determinar la tarifa diaria y calcular automáticamente el costo total del alquiler.
 ALTER TABLE vehiculo
 ADD COLUMN tipoVehiculo VARCHAR(20) CHECK (tipo_vehiculo IN ('Camioneta', 'Deportivo', 'Convertible', 'Regular')) NOT NULL;
 CREATE TABLE tarifas (
