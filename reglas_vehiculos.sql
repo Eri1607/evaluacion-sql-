@@ -380,32 +380,30 @@ BEGIN
     INNER JOIN estado e ON v.idEstVehiculo = e.idEstado
     WHERE v.idVehiculo = NEW.idVehiculo;
     IF estadoActual != 'Disponible' THEN
-        SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'El vehículo no está disponible para alquiler';
     END IF;
 END;
-//
-DELIMITER ;
+// DELIMITER ;
 
 
 -- ii. Cada cliente debe proporcionar información de contacto válida (email y teléfono).
 -- Añadir restricciones de validación al formato del correo electrónico y número de teléfono en la tabla cliente.
 ALTER TABLE cliente
-ADD CONSTRAINT chk_email_cliente CHECK (emaCliente LIKE '%_@__%.__%'),
+ADD CONSTRAINT chk_email_cliente CHECK (emaCliente LIKE '%@%.com%'),
 ADD CONSTRAINT chk_cel_cliente CHECK (celCliente REGEXP '^[0-9]{10}$');
 
 
 -- iii. La tarifa de alquiler depende del tipo de vehículo y debe calcularse en función del número de días de alquiler.
 --Relacionar la tabla tipo con la tabla vehiculo para determinar la tarifa diaria y calcular automáticamente el costo total del alquiler.
 ALTER TABLE alquiler
-ADD COLUMN tarifaDiaria INT NOT NULL,
+ADD COLUMN   INT NOT NULL,
 ADD COLUMN diasAlquiler INT GENERATED ALWAYS AS (DATEDIFF(fecFinAlquiler, fecInicioAlquiler)) STORED,
 ADD COLUMN costoTotal INT GENERATED ALWAYS AS (diasAlquiler * tarifaDiaria) STORED;
 
 DELIMITER //
 CREATE TRIGGER calcular_tarifa
 BEFORE INSERT ON alquiler
-FOR EACH ROW
+FOR EACH ROW  
 BEGIN
     SELECT preAlqTipo INTO NEW.tarifaDiaria
     FROM tipo
